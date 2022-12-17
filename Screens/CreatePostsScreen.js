@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import {
+  Image,
   Alert,
   Keyboard,
   ScrollView,
@@ -18,12 +19,14 @@ import DownloadPhoto from "../assets/images/downloadPhoto.svg";
 import Location from "../assets/images/location.svg";
 import Trash from "../assets/images/trash.svg";
 
-export const CreatePostsScreen = ({navigation}) => {
+export const CreatePostsScreen = ({ route, navigation }) => {
   const [fontsLoaded] = useFonts({
     Roboto: require("../assets/fonts/Roboto-Regular.ttf"),
     RobotoMedium: require("../assets/fonts/Roboto-Medium.ttf"),
     RobotoBold: require("../assets/fonts/Roboto-Bold.ttf"),
   });
+
+  const [image, setImage] = useState("");
 
   const [windowWidth, setWindowWidth] = useState(
     Dimensions.get("window").width
@@ -39,26 +42,6 @@ export const CreatePostsScreen = ({navigation}) => {
 
   const titleHandler = (title) => setTitle(title);
   const locationHandler = (location) => setLocation(location);
-
-  useEffect(() => {
-    const onChange = () => {
-      const width = Dimensions.get("window").width;
-      setWindowWidth(width);
-    };
-    const dimensionsHandler = Dimensions.addEventListener("change", onChange);
-
-    return () => dimensionsHandler.remove();
-  }, []);
-
-  useEffect(() => {
-    title && location
-      ? setIsDisabledPublish(false)
-      : setIsDisabledPublish(true);
-  }, [title, location]);
-
-  useEffect(() => {
-    title || location ? setIsDisabledTrash(false) : setIsDisabledTrash(true);
-  }, [title, location]);
 
   const onPublish = () => {
     if (!title.trim() || !location.trim()) {
@@ -80,37 +63,82 @@ export const CreatePostsScreen = ({navigation}) => {
   };
 
   useEffect(() => {
-    async function prepare() {
-      await SplashScreen.preventAutoHideAsync();
+    if (route.params) {
+      setImage(route.params.photo);
     }
-    prepare();
+  }, [route.params]);
+
+  console.log(image);
+
+  useEffect(() => {
+    const onChange = () => {
+      const width = Dimensions.get("window").width;
+      setWindowWidth(width);
+    };
+    const dimensionsHandler = Dimensions.addEventListener("change", onChange);
+
+    return () => dimensionsHandler.remove();
   }, []);
 
-  const onLayout = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
-  if (!fontsLoaded) {
-    return null;
-  }
+  useEffect(() => {
+    image && title && location
+      ? setIsDisabledPublish(false)
+      : setIsDisabledPublish(true);
+  }, [title, location, image]);
 
+  useEffect(() => {
+    title || location ? setIsDisabledTrash(false) : setIsDisabledTrash(true);
+  }, [title, location]);
+
+  // useEffect(() => {
+  //   async function prepare() {
+  //     await SplashScreen.preventAutoHideAsync();
+  //   }
+  //   prepare();
+  // }, []);
+
+  // const onLayout = useCallback(async () => {
+  //   if (fontsLoaded) {
+  //     await SplashScreen.hideAsync();
+  //   }
+  // }, [fontsLoaded]);
+  // if (!fontsLoaded) {
+  //   return null;
+  // }
+
+ 
   return (
     <KeyboardAvoidingView
-      onLayout={onLayout}
+      // onLayout={onLayout}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
       <View style={{ flex: 1 }}>
         <ScrollView>
           <View style={{ ...styles.section, width: windowWidth }}>
-            <View
-              style={{ ...styles.contentBlock, width: windowWidth - 16 * 2 }}
-            >
-              <TouchableOpacity>
-                <DownloadPhoto />
-              </TouchableOpacity>
-            </View>
+            {image ? (
+              <View>
+                <Image
+                  style={{...styles.image, width: windowWidth - 16 * 2}}
+                  source={{ uri: image }}
+                />
+                <TouchableOpacity style={{position: 'absolute', top: 90, left: (windowWidth - 60 - 16 * 2)/2}}>
+                  <DownloadPhoto
+                    onPress={() => navigation.navigate("Camera")} opacity={0.3}
+                  />
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View
+                style={{ ...styles.contentBlock, width: windowWidth - 16 * 2 }}
+              >
+                <TouchableOpacity>
+                  <DownloadPhoto
+                    onPress={() => navigation.navigate("Camera")}
+                  />
+                </TouchableOpacity>
+              </View>
+            )}
             <View style={{ width: "100%", alignItems: "flex-start" }}>
               <Text style={styles.text}>Download photo</Text>
             </View>
@@ -144,7 +172,7 @@ export const CreatePostsScreen = ({navigation}) => {
                 cursorColor={"#BDBDBD"}
                 placeholderTextColor={"#BDBDBD"}
                 onChangeText={locationHandler}
-                onPressIn={() => navigation.navigate('Map')}
+                onPressIn={() => navigation.navigate("Map")}
               ></TextInput>
               <Location style={styles.locationIcon} />
             </View>
@@ -195,6 +223,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 32,
     paddingHorizontal: 16,
+  },
+  image: {
+    height: 240,
+    
+    resizeMode: "cover",
+    borderRadius: 8,
   },
   contentBlock: {
     alignItems: "center",
