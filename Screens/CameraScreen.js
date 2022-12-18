@@ -10,19 +10,19 @@ import DownloadPhoto from "../assets/images/downloadPhoto.svg";
 export const CameraScreen = ({ navigation }) => {
   const [location, setLocation] = useState(null);
 
-  let cameraRef = useRef();
+  const cameraRef = useRef();
   const [hasCameraPermission, setHasCameraPermission] = useState();
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState();
   const [photo, setPhoto] = useState();
 
   useEffect(() => {
     (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         Alert.alert("Permission to access location was denied");
       }
 
-      let location = await Location.getCurrentPositionAsync({});
+      const location = await Location.getCurrentPositionAsync({});
       const coords = {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -49,19 +49,19 @@ export const CameraScreen = ({ navigation }) => {
     );
   }
 
-  let takePic = async () => {
-    let newPhoto = await cameraRef.current.takePictureAsync();
+  const takePic = async () => {
+    const newPhoto = await cameraRef.current.takePictureAsync();
     setPhoto(newPhoto.uri);
   };
 
   if (photo) {
-    let sharePic = () => {
+    const sharePic = () => {
       shareAsync(photo.uri).then(() => {
         setPhoto(undefined);
       });
     };
 
-    let savePic = () => {
+    const savePic = () => {
       //save to phone's gallery
       //   MediaLibrary.saveToLibraryAsync(photo.uri).then(() => {
       //     setPhoto(undefined);
