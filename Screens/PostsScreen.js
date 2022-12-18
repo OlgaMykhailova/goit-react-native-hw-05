@@ -41,7 +41,7 @@ const POSTS = [
   },
 ];
 
-export const PostsScreen = ({ navigation }) => {
+export const PostsScreen = ({ route, navigation }) => {
   const [fontsLoaded] = useFonts({
     Roboto: require("../assets/fonts/Roboto-Regular.ttf"),
     RobotoMedium: require("../assets/fonts/Roboto-Medium.ttf"),
@@ -52,7 +52,9 @@ export const PostsScreen = ({ navigation }) => {
     Dimensions.get("window").width
   );
 
+  
   const [posts, setPosts] = useState(POSTS);
+
 
   useEffect(() => {
     const onChange = () => {
@@ -136,10 +138,10 @@ export const PostsScreen = ({ navigation }) => {
                   <Text style={styles.cardText}>{item.likes}</Text>
                 </View>
               </View>
-              <View style={styles.wrapper}>
+              <TouchableOpacity style={styles.wrapper} onPress={() => navigation.navigate('Map')}>
                 <Location />
                 <Text style={styles.cardText}>{item.location}</Text>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
         )}

@@ -18,7 +18,7 @@ import Location from "../assets/images/location.svg";
 
 const POSTS = [
   {
-    id: 1,
+    id: 4,
     postImage: require("../assets/images/forrest.jpg"),
     title: "Forrest",
     location: "Ukraine",
@@ -26,7 +26,7 @@ const POSTS = [
     likes: 153,
   },
   {
-    id: 2,
+    id: 5,
     postImage: require("../assets/images/sunset.jpg"),
     title: "Sunset on the Black Sea",
     location: "Ukraine",
@@ -34,7 +34,7 @@ const POSTS = [
     likes: 200,
   },
   {
-    id: 3,
+    id: 6,
     postImage: require("../assets/images/oldhouse.jpg"),
     title: "Old house in Venice",
     location: "Italy",
@@ -175,10 +175,10 @@ export const ProfileScreen = ({ navigation }) => {
                     <Text style={styles.cardText}>{item.likes}</Text>
                   </View>
                 </View>
-                <View style={styles.cardWrapper}>
+                <TouchableOpacity style={styles.cardWrapper} onPress={() => navigation.navigate('Map')}>
                   <Location />
                   <Text style={styles.cardText}>{item.location}</Text>
-                </View>
+                </TouchableOpacity>
               </View>
             </View>
           )}

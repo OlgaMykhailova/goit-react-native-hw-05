@@ -41,34 +41,42 @@ export const CreatePostsScreen = ({ route, navigation }) => {
   const [isDisabledTrash, setIsDisabledTrash] = useState(true);
 
   const titleHandler = (title) => setTitle(title);
-  const locationHandler = (location) => setLocation(location);
+  // const locationHandler = (location) => setLocation(location);
 
   const onPublish = () => {
-    if (!title.trim() || !location.trim()) {
+    if (!title.trim() || !location) {
       Alert.alert(`All fields must be completed!`);
       return;
     }
     Alert.alert(`Post successfully created!`);
-    console.log(title, location);
+    const newPost = {
+      id: Date(),
+      imagePost: image,
+      title: title,
+      location: `${location?.latitude}, ${location?.longitude}`,
+      comments: 50,
+      likes: 200,
+    };
+    setImage();
     setTitle("");
     setLocation("");
     Keyboard.dismiss();
+    navigation.navigate("Posts", { newPost });
   };
 
   const onDelete = () => {
     setTitle("");
     setLocation("");
+    setImage();
     Alert.alert(`Successfully deleted!`);
     Keyboard.dismiss();
   };
-
   useEffect(() => {
     if (route.params) {
       setImage(route.params.photo);
+      setLocation(route.params.location);
     }
   }, [route.params]);
-
-  console.log(image);
 
   useEffect(() => {
     const onChange = () => {
@@ -87,8 +95,10 @@ export const CreatePostsScreen = ({ route, navigation }) => {
   }, [title, location, image]);
 
   useEffect(() => {
-    title || location ? setIsDisabledTrash(false) : setIsDisabledTrash(true);
-  }, [title, location]);
+    image || title || location
+      ? setIsDisabledTrash(false)
+      : setIsDisabledTrash(true);
+  }, [title, location, image]);
 
   // useEffect(() => {
   //   async function prepare() {
@@ -106,7 +116,6 @@ export const CreatePostsScreen = ({ route, navigation }) => {
   //   return null;
   // }
 
- 
   return (
     <KeyboardAvoidingView
       // onLayout={onLayout}
@@ -119,12 +128,19 @@ export const CreatePostsScreen = ({ route, navigation }) => {
             {image ? (
               <View>
                 <Image
-                  style={{...styles.image, width: windowWidth - 16 * 2}}
+                  style={{ ...styles.image, width: windowWidth - 16 * 2 }}
                   source={{ uri: image }}
                 />
-                <TouchableOpacity style={{position: 'absolute', top: 90, left: (windowWidth - 60 - 16 * 2)/2}}>
+                <TouchableOpacity
+                  style={{
+                    position: "absolute",
+                    top: 90,
+                    left: (windowWidth - 60 - 16 * 2) / 2,
+                  }}
+                >
                   <DownloadPhoto
-                    onPress={() => navigation.navigate("Camera")} opacity={0.3}
+                    onPress={() => navigation.navigate("Camera")}
+                    opacity={0.3}
                   />
                 </TouchableOpacity>
               </View>
@@ -166,13 +182,16 @@ export const CreatePostsScreen = ({ route, navigation }) => {
                 }}
                 onFocus={() => setIsFocusedLocation(true)}
                 onBlur={() => setIsFocusedLocation(false)}
-                value={location}
+                value={
+                  location
+                    ? `${location?.latitude}, ${location?.longitude}`
+                    : ""
+                }
                 textContentType={"location"}
                 placeholder="Location"
                 cursorColor={"#BDBDBD"}
                 placeholderTextColor={"#BDBDBD"}
-                onChangeText={locationHandler}
-                onPressIn={() => navigation.navigate("Map")}
+                // onChangeText={locationHandler}
               ></TextInput>
               <Location style={styles.locationIcon} />
             </View>
@@ -226,7 +245,7 @@ const styles = StyleSheet.create({
   },
   image: {
     height: 240,
-    
+
     resizeMode: "cover",
     borderRadius: 8,
   },

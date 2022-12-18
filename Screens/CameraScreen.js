@@ -2,15 +2,34 @@ import React, { useState, useEffect, useRef } from "react";
 import { Camera } from "expo-camera";
 import { shareAsync } from "expo-sharing";
 import * as MediaLibrary from "expo-media-library";
-import { StyleSheet, Image, Text, View, TouchableOpacity } from "react-native";
+import * as Location from "expo-location";
+import { StyleSheet, Image, Text, View, TouchableOpacity, Alert } from "react-native";
 
 import DownloadPhoto from "../assets/images/downloadPhoto.svg";
 
 export const CameraScreen = ({ navigation }) => {
+  const [location, setLocation] = useState(null);
+
   let cameraRef = useRef();
   const [hasCameraPermission, setHasCameraPermission] = useState();
   const [hasMediaLibraryPermission, setHasMediaLibraryPermission] = useState();
   const [photo, setPhoto] = useState();
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission to access location was denied");
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      const coords = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+      setLocation(coords);
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -47,9 +66,9 @@ export const CameraScreen = ({ navigation }) => {
       //   MediaLibrary.saveToLibraryAsync(photo.uri).then(() => {
       //     setPhoto(undefined);
       //   });
-      navigation.navigate("Create Post", { photo });
-      setTimeout(() => setPhoto(undefined), 400);
-    };
+      navigation.navigate("Create Post", { photo, location });
+      setTimeout(() => {setPhoto(undefined); setLocation(null)}, 400);
+        };
 
     return (
       <View style={styles.container}>
